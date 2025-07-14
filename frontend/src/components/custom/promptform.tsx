@@ -1,9 +1,8 @@
 import React from "react";
-
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -15,6 +14,8 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const FormSchema = z.object({
 	prompt: z
@@ -33,12 +34,21 @@ export function PromptForm() {
 	});
 
 	function onSubmit(data: z.infer<typeof FormSchema>) {
-		console.log(`submitted ${JSON.stringify(data, null, 2)}`);
+		axios
+			.post(`${API_URL}/openai`, { prompt: data.prompt })
+			.then((response) => {
+				// handle success, e.g. show response data
+				console.log(response.data);
+			})
+			.catch((error) => {
+				// handle error, e.g. show error message
+				console.error(error);
+			});
 	}
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 				<FormField
 					control={form.control}
 					name="prompt"
@@ -48,7 +58,7 @@ export function PromptForm() {
 							<FormControl>
 								<Textarea
 									placeholder="Explain your question in clear terms."
-									className="resize-none"
+									className="resize-none h-36"
 									{...field}
 								/>
 							</FormControl>
