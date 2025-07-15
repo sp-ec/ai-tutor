@@ -8,7 +8,8 @@ const openai = new OpenAI({
 
 const Step = z.object({
   explanation: z.string(),
-  output: z.string(),
+  solution: z.string(),
+  title: z.string()
 });
 
 const MathReasoning = z.object({
@@ -23,7 +24,7 @@ export async function fetchOpenAIResponse(text: string) {
     {
       role: "system",
       content:
-        "You are a helpful math tutor. Guide the user through the solution step by step.",
+        "You are a helpful math tutor. Guide the user through the solution step by step. The explanation should guide the user without revealing the solution.",
     },
     { role: "user", content: text },
     ],

@@ -14,6 +14,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,27 +29,33 @@ const FormSchema = z.object({
 		}),
 });
 
-export function PromptForm() {
+
+
+interface PromptFormProps {
+	onDataFetched: (data: ResponseStep[]) => void;
+}
+
+export function PromptForm({ onDataFetched }: PromptFormProps) {
+	const [data, setData] = useState("");
+
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 	});
 
-	function onSubmit(data: z.infer<typeof FormSchema>) {
-		axios
-			.post(`${API_URL}/openai`, { prompt: data.prompt })
-			.then((response) => {
-				// handle success, e.g. show response data
-				console.log(response.data);
-			})
-			.catch((error) => {
-				// handle error, e.g. show error message
-				console.error(error);
-			});
-	}
+	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
+		try {
+		  const res = await axios.get<ResponseStep[]>(`${API_URL}/openai`, {
+			params: { prompt: values.prompt }
+		  });
+		  onDataFetched(res.data);
+		} catch (err) {
+		  console.error(err);
+		}
+	  };
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
 				<FormField
 					control={form.control}
 					name="prompt"
