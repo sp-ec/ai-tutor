@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import type { Explanation, ExplanationResponse } from "@/types/responseTypes";
+import type { Explanation, ExplanationResponse } from "@/types/response.types";
+import { ModelSelector } from "./ModelSelector";
+import { ActionSelector } from "./ActionSelector";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,6 +30,8 @@ const FormSchema = z.object({
 		.max(10000, {
 			message: "Prompt must not be longer than 10,000 characters.",
 		}),
+	model: z.enum(["gpt-4o", "gpt-4", "gpt-3.5-turbo"]),
+	action: z.enum(["explain", "quiz", "tutor"]),
 });
 
 interface PromptFormProps {
@@ -37,14 +41,20 @@ interface PromptFormProps {
 export function PromptForm({ onDataFetched }: PromptFormProps) {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
+		defaultValues: {
+			model: "gpt-4o",
+			action: "explain",
+		},
 	});
 
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
 		console.log("Submitting prompt:", values.prompt);
 		try {
+			onDataFetched({ steps: [], final_answer: "" });
 			const res = await axios.post<ExplanationResponse>(`${API_URL}/openai`, {
 				prompt: values.prompt,
-				model: "gpt-4o",
+				model: values.model,
+				action: values.action,
 			});
 			onDataFetched(res.data.response);
 			console.log("Response received:", res.data.response);
@@ -72,14 +82,43 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 									{...field}
 								/>
 							</FormControl>
+							<FormDescription>
+								AI models may be innacurate or biased. Always verify the
+								information provided.
+							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Explain</Button>
-				{/* <Button type="submit" className="ml-4">
-					Quiz
-				</Button> */}
+				<div className="flex space-x-8 mb-8">
+					{/* <FormField
+						control={form.control}
+						name="model"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Model</FormLabel>
+								<FormControl>
+									<ModelSelector {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/> */}
+					<FormField
+						control={form.control}
+						name="action"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Action</FormLabel>
+								<FormControl>
+									<ActionSelector {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
+				<Button type="submit">Submit</Button>
 			</form>
 		</Form>
 	);

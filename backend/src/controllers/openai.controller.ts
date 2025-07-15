@@ -9,6 +9,7 @@ export const getAIResponse = async (req: Request, res: Response) => {
   if (!model) return res.status(400).json({ error: 'Model is required.' });
 
   try {
+    console.log(`Using model ${model}`);
     const response = await fetchOpenAIResponse(prompt, model);
     res.json({ success: true, prompt, response });
   } catch (error: any) {

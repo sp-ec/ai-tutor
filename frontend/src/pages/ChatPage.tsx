@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import ResponseStep from "@/components/custom/ExplanationStep";
-import type { Explanation, ExplanationStep } from "@/types/responseTypes";
+import type { Explanation, ExplanationStep } from "@/types/response.types";
 import { PromptForm } from "@/components/custom/promptform";
 
 function ChatPage() {

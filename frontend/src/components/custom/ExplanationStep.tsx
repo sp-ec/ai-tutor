@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
-import type { ExplanationStep } from "@/types/responseTypes";
+import type { ExplanationStep } from "@/types/response.types";
 
 function ResponseStep({ data, key }: { data: ExplanationStep; key: number }) {
 	return (
