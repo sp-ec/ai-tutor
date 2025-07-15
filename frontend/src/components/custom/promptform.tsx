@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import type { Explanation, ExplanationResponse } from "@/types/responseTypes";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,33 +30,35 @@ const FormSchema = z.object({
 		}),
 });
 
-
-
 interface PromptFormProps {
-	onDataFetched: (data: ResponseStep[]) => void;
+	onDataFetched: (data: Explanation) => void;
 }
 
 export function PromptForm({ onDataFetched }: PromptFormProps) {
-	const [data, setData] = useState("");
-
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 	});
 
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
+		console.log("Submitting prompt:", values.prompt);
 		try {
-		  const res = await axios.get<ResponseStep[]>(`${API_URL}/openai`, {
-			params: { prompt: values.prompt }
-		  });
-		  onDataFetched(res.data);
+			const res = await axios.post<ExplanationResponse>(`${API_URL}/openai`, {
+				prompt: values.prompt,
+				model: "gpt-4o",
+			});
+			onDataFetched(res.data.response);
+			console.log("Response received:", res.data.response);
 		} catch (err) {
-		  console.error(err);
+			console.error(err);
 		}
-	  };
+	};
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+			<form
+				onSubmit={form.handleSubmit(handleSubmit)}
+				className="space-y-6 mb-6"
+			>
 				<FormField
 					control={form.control}
 					name="prompt"
@@ -74,9 +77,9 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 					)}
 				/>
 				<Button type="submit">Explain</Button>
-				<Button type="submit" className="ml-4">
+				{/* <Button type="submit" className="ml-4">
 					Quiz
-				</Button>
+				</Button> */}
 			</form>
 		</Form>
 	);
