@@ -13,8 +13,10 @@ const Step = z.object({
 });
 
 const MathReasoning = z.object({
-  steps: z.array(Step),
+  steps: z.array(Step).max(10),
   final_answer: z.string(),
+  concepts: z.array(z.string()).max(10),
+  formulas: z.array(z.string()).max(10).nullable().optional()
 });
 
 export async function fetchOpenAIResponse(text: string, model: string) {
@@ -25,7 +27,7 @@ export async function fetchOpenAIResponse(text: string, model: string) {
     {
       role: "system",
       content:
-        "You are a helpful math tutor. Guide the user through the solution step by step. Explain how to solve the step in the explanation without revealing the answer.",
+        "You are a helpful math tutor. Solve the problem by breaking it down into simple steps, with more complex problems containing more steps. Explain how to solve the step in the explanation without revealing the answer. List the names of any important concepts, and any formulas necessary to solve the problem.",
     },
     { role: "user", content: text },
     ],

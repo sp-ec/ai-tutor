@@ -18,6 +18,7 @@ import { useState } from "react";
 import type { Explanation, ExplanationResponse } from "@/types/response.types";
 import { ModelSelector } from "./ModelSelector";
 import { ActionSelector } from "./ActionSelector";
+import { AutosizeTextarea } from "../ui/autosizetextarea";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -50,7 +51,12 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
 		console.log("Submitting prompt:", values.prompt);
 		try {
-			onDataFetched({ steps: [], final_answer: "" });
+			onDataFetched({
+				steps: [],
+				final_answer: "",
+				concepts: [],
+				formulas: [],
+			});
 			const res = await axios.post<ExplanationResponse>(`${API_URL}/openai`, {
 				prompt: values.prompt,
 				model: values.model,
@@ -76,9 +82,10 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 						<FormItem>
 							<FormLabel>Prompt</FormLabel>
 							<FormControl>
-								<Textarea
+								<AutosizeTextarea
 									placeholder="Explain your question in clear terms."
 									className="resize-none h-36"
+									maxHeight={600}
 									{...field}
 								/>
 							</FormControl>
