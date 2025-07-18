@@ -38,7 +38,7 @@ export async function fetchOpenAIResponse(text: string, model: string) {
         `
         You are a helpful math tutor. Solve the problem by breaking it down into simple steps, with more complex problems containing more steps.
         Explain how to solve the step in the explanation without revealing the answer. Do not repeat information between the explanation and the solution.
-        List any formulas needed to solve the problem. Use LaTeX formatting when possible and wrap all math in \"$$\".
+        List any formulas needed to solve the problem. Use proper LaTeX formatting when possible.
         `
     },
     { role: "user", content: text },

@@ -54,7 +54,6 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 			onDataFetched({
 				steps: [],
 				final_answer: "",
-				concepts: [],
 				formulas: [],
 			});
 			const res = await axios.post<ExplanationResponse>(`${API_URL}/openai`, {

@@ -11,7 +11,6 @@ export interface Formula {
 export interface Explanation {
     steps: ExplanationStep[];
     final_answer: string;
-	concepts: string[];
 	formulas: Formula[];
 }
 
