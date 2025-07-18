@@ -12,20 +12,19 @@ import {
 } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import LaTeXParagraph from "./LaTeXDisplay";
 import LatexText from "./LaTeXDisplay";
 import { set } from "zod";
 
-function ResponseStep({ data, key }: { data: ExplanationStep; key: number }) {
+function ResponseStep({ data }: { data: ExplanationStep }) {
 	const [showSolution, setShowSolution] = useState(false);
-	const [solution, setSolution] = useState("");
+	const [solution, setSolution] = useState(data.solution);
 
 	useEffect(() => {
 		setSolution(data.solution);
 	}, [showSolution]);
 
 	return (
-		<Card className="w-full mt-8" key={key}>
+		<Card className="w-full mt-8">
 			<CardHeader>
 				<CardTitle>
 					<LatexText content={data.title} />
@@ -34,21 +33,23 @@ function ResponseStep({ data, key }: { data: ExplanationStep; key: number }) {
 			<CardContent>
 				<LatexText content={data.explanation} />
 			</CardContent>
-			<CardFooter className="flex-col gap-2 items-start">
-				{showSolution ? (
-					<div className="w-full bg-solution rounded-lg p-8">
-						<LatexText content={solution} />
-					</div>
-				) : (
-					<Button
-						type="button"
-						className="w-full h-16"
-						onClick={() => setShowSolution(true)}
-					>
-						Show Solution
-					</Button>
-				)}
-			</CardFooter>
+			{data.solution ? (
+				<CardFooter className="flex-col gap-2 items-start">
+					{showSolution ? (
+						<div className="w-full bg-solution rounded-lg p-8">
+							<LatexText content={solution} />
+						</div>
+					) : (
+						<Button
+							type="button"
+							className="w-full h-16"
+							onClick={() => setShowSolution(true)}
+						>
+							Show Solution
+						</Button>
+					)}
+				</CardFooter>
+			) : null}
 		</Card>
 	);
 }

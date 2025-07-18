@@ -18,6 +18,7 @@ const LatexText = ({ content }: Props) => {
 					{ left: "\\[", right: "\\]", display: true },
 					{ left: "\\(", right: "\\)", display: false },
 				],
+				throwOnError: false,
 			});
 		}
 	}, [content]);

@@ -12,11 +12,19 @@ const Step = z.object({
   title: z.string()
 });
 
+const Formula = z.object({
+  math: z.string().transform((val) => {
+    if (!val.startsWith('$$')) val = `$$${val}`;
+    if (!val.endsWith('$$')) val = `${val}$$`;
+    return val;
+  }),
+  title: z.string(),
+});
+
 const MathReasoning = z.object({
   steps: z.array(Step).max(10),
   final_answer: z.string(),
-  concepts: z.array(z.string()).max(10),
-  formulas: z.array(z.string()).max(10).nullable().optional()
+  formulas: z.array(Formula).max(10).nullable().optional()
 });
 
 export async function fetchOpenAIResponse(text: string, model: string) {
@@ -27,7 +35,11 @@ export async function fetchOpenAIResponse(text: string, model: string) {
     {
       role: "system",
       content:
-        "You are a helpful math tutor. Solve the problem by breaking it down into simple steps, with more complex problems containing more steps. Explain how to solve the step in the explanation without revealing the answer. List the names of any important concepts, and any formulas necessary to solve the problem.",
+        `
+        You are a helpful math tutor. Solve the problem by breaking it down into simple steps, with more complex problems containing more steps.
+        Explain how to solve the step in the explanation without revealing the answer. Do not repeat information between the explanation and the solution.
+        List any formulas needed to solve the problem. Use LaTeX formatting when possible and wrap all math in \"$$\".
+        `
     },
     { role: "user", content: text },
     ],

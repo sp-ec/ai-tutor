@@ -4,11 +4,15 @@ export interface ExplanationStep {
 	solution: string;
 }
 
+export interface Formula {
+	math: string;
+	title: string;
+}
 export interface Explanation {
     steps: ExplanationStep[];
     final_answer: string;
 	concepts: string[];
-	formulas: string[];
+	formulas: Formula[];
 }
 
 export interface ExplanationResponse {
