@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { z } from 'zod';
-import { zodTextFormat } from 'openai/helpers/zod';
+import { zodTextFormat, zodResponseFormat } from 'openai/helpers/zod';
 import { Request, Response } from 'express';
 
 const openai = new OpenAI({
@@ -8,24 +8,24 @@ const openai = new OpenAI({
 });
 
 const Step = z.object({
+  title: z.string(),
   explanation: z.string(),
   solution: z.string(),
-  title: z.string()
 });
 
 const Formula = z.object({
+  title: z.string(),
   math: z.string().transform((val) => {
     if (!val.startsWith('$$')) val = `$$${val}`;
     if (!val.endsWith('$$')) val = `${val}$$`;
     return val;
   }),
-  title: z.string(),
 });
 
-const MathReasoning = z.object({
+const ExplanationSchema = z.object({
+  formulas: z.array(Formula).max(10).nullable().optional(),
   steps: z.array(Step).max(10),
   final_answer: z.string(),
-  formulas: z.array(Formula).max(10).nullable().optional()
 });
 
 export async function fetchOpenAIResponse(text: string, model: string) {
@@ -42,11 +42,9 @@ export async function fetchOpenAIResponse(text: string, model: string) {
         List any formulas needed to solve the problem. Use proper LaTeX formatting when possible.
         `
     },
-    { role: "user", content: text },
+      { role: "user", content: text },
     ],
-    text: {
-      format: zodTextFormat(MathReasoning, "math_reasoning"),
-    },
+    response_format: zodResponseFormat(ExplanationSchema, "explanation"),
   });
 
   return res.output_parsed;
@@ -54,9 +52,9 @@ export async function fetchOpenAIResponse(text: string, model: string) {
 
 export async function streamExplanationResponse(prompt: string, model: string, res: Response) {
 
-  const stream = await openai.responses.stream({
+  const stream = await openai.chat.completions.stream({
     model,
-    input: [
+    messages: [
       {
         role: 'system',
         content: `
@@ -67,26 +65,21 @@ export async function streamExplanationResponse(prompt: string, model: string, r
       },
       { role: 'user', content: prompt },
     ],
-    text: {
-      format: zodTextFormat(MathReasoning, 'math_reasoning'),
-    },
+    response_format: zodResponseFormat(ExplanationSchema, "explanation"),
+  })
+  .on("refusal.done", () => console.log("request refused"))
+  .on("content.delta", ({ snapshot, parsed }) => {
+    //console.log("content:", snapshot);
+    //console.log("parsed:", parsed);
+    res.write(JSON.stringify(parsed) + "\n\n");
+  })
+  .on("content.done", (props) => {
+    //console.log(props);
   });
 
-  let buffer = '';
+  await stream.done();
 
-  for await (const chunk of stream) {
-    const textChunk = typeof chunk === 'string' ? chunk : JSON.stringify(chunk);
-    buffer += textChunk;
+  const finalCompletion = await stream.finalChatCompletion();
 
-    try {
-      const parsed = JSON.parse(buffer);
-      res.write(`data: ${JSON.stringify(parsed)}\n\n`);
-      buffer = ''; // reset buffer if successful
-    } catch {
-      // wait for more text until valid JSON
-    }   
-  }
-
-  res.write(`event: end\ndata: done\n\n`);
-  res.end();
+  console.log(finalCompletion);
 }

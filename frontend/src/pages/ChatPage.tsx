@@ -61,7 +61,7 @@ function ChatPage() {
 										</em>
 									</div>
 									<LatexText
-										content={`${formula.math}`}
+										content={`$$${formula.math}$$`}
 										key={`formula-math-${index}`}
 									/>
 								</div>
