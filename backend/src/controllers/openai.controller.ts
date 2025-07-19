@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
-import { fetchOpenAIResponse } from '../services/openai.service';
+import { fetchOpenAIResponse, streamExplanationResponse } from '../services/openai.service';
 import { OpenAIModel } from '../types/openai.types';
 
+
 export const getAIResponse = async (req: Request, res: Response) => {
-  const { prompt, model } = req.body as { prompt?: string; model?: string };
+  const prompt = req.query.prompt as string;
+  const model = req.query.model as string;
 
   if (!prompt) return res.status(400).json({ error: 'Prompt is required.' });
   if (!model) return res.status(400).json({ error: 'Model is required.' });
@@ -18,5 +20,25 @@ export const getAIResponse = async (req: Request, res: Response) => {
       message: 'Failed to get response from OpenAI.',
       error: error.message,
     });
+  }
+};
+
+export const getExplanationResponse = async (req: Request, res: Response) => {
+  const { prompt, model } = req.body as { prompt?: string; model?: string };
+
+  if (!prompt) return res.status(400).json({ error: 'Prompt is required.' });
+  if (!model) return res.status(400).json({ error: 'Model is required.' });
+
+  try {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); 
+
+    await streamExplanationResponse(prompt, model, res);
+    
+  } catch (error: any) {
+    res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 };

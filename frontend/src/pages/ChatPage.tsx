@@ -24,6 +24,7 @@ function ChatPage() {
 	const [finalAnswer, setFinalAnswer] = useState("");
 
 	const handleData = (data: Explanation) => {
+		// console.log("Data fetched:", data);
 		setShowFinalAnswer(false);
 		setExplanation(data);
 	};
@@ -69,7 +70,7 @@ function ChatPage() {
 					</Card>
 				)}
 
-				{explanation?.steps.map((step: ExplanationStep, index: number) => (
+				{explanation?.steps?.map((step: ExplanationStep, index: number) => (
 					<ResponseStep data={step} key={`step-${index}`} />
 				))}
 

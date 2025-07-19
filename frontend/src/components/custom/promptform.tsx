@@ -14,11 +14,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Explanation, ExplanationResponse } from "@/types/response.types";
 import { ModelSelector } from "./ModelSelector";
 import { ActionSelector } from "./ActionSelector";
 import { AutosizeTextarea } from "../ui/autosizetextarea";
+import { on } from "events";
+import { parse } from "partial-json";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -51,20 +53,73 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
 		console.log("Submitting prompt:", values.prompt);
 		try {
-			onDataFetched({
+			let currentData: Explanation = {
 				steps: [],
 				final_answer: "",
 				formulas: [],
+			};
+
+			onDataFetched(currentData); // reset state
+
+			const response = await fetch(`${API_URL}/openai/explain`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					prompt: values.prompt,
+					model: values.model,
+					action: values.action,
+				}),
 			});
-			const res = await axios.post<ExplanationResponse>(`${API_URL}/openai`, {
-				prompt: values.prompt,
-				model: values.model,
-				action: values.action,
-			});
-			onDataFetched(res.data.response);
-			console.log("Response received:", res.data.response);
+
+			if (!response.body) throw new Error("Readable stream not available");
+
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder("utf-8");
+			let jsonText = "";
+
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+
+				const chunk = decoder.decode(value, { stream: true });
+
+				const lines = chunk.split("\n");
+
+				for (const line of lines) {
+					if (!line.startsWith("data: ")) continue;
+
+					const jsonStr = line.slice("data: ".length).trim();
+					if (!jsonStr || jsonStr === "[DONE]") continue;
+
+					try {
+						const parsed = JSON.parse(jsonStr);
+						if (parsed.delta) {
+							jsonText += parsed.delta;
+
+							// Try to parse what we have so far
+							try {
+								const partial = JSON.parse(jsonText);
+								console.log("Partial data:", partial);
+								onDataFetched(partial); // partial update
+							} catch {}
+						}
+					} catch (err) {
+						console.warn("Bad JSON chunk:", jsonStr);
+					}
+				}
+
+				console.log("Accumulated JSON text:", jsonText);
+				onDataFetched(currentData); // update state with current data
+			}
+
+			// Done reading; now parse the accumulated full JSON
+			const explanation = JSON.parse(jsonText) as Explanation;
+			onDataFetched(explanation);
+			console.log("Full explanation:", explanation);
 		} catch (err) {
-			console.error(err);
+			console.error("Streaming error:", err);
 		}
 	};
 
