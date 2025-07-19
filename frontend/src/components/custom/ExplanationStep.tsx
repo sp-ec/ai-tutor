@@ -10,14 +10,11 @@ import {
 	CardFooter,
 	CardAction,
 } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import LatexText from "./LaTeXDisplay";
-import { set } from "zod";
 
 function ResponseStep({ data }: { data: ExplanationStep }) {
 	const [showSolution, setShowSolution] = useState(false);
-	const [solution, setSolution] = useState(data.solution);
+	const [solution, setSolution] = useState("");
 
 	useEffect(() => {
 		setSolution(data.solution);
@@ -36,8 +33,8 @@ function ResponseStep({ data }: { data: ExplanationStep }) {
 			{data.solution ? (
 				<CardFooter className="flex-col gap-2 items-start">
 					{showSolution ? (
-						<div className="w-full bg-solution rounded-lg p-8">
-							<LatexText content={solution} />
+						<div className="w-full bg-amber-50 rounded-lg p-8 border border-zinc-300">
+							<LatexText content={`${solution}`} />
 						</div>
 					) : (
 						<Button

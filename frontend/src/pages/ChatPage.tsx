@@ -46,10 +46,10 @@ function ChatPage() {
 						<CardHeader>
 							<CardTitle>Formulas</CardTitle>
 						</CardHeader>
-						<CardContent className="w-full flex space-x-4 flex-wrap">
+						<CardContent className="w-full flex flex-wrap">
 							{explanation?.formulas?.map((formula, index) => (
 								<div
-									className="mb-4 rounded-md p-4 bg-zinc-100 pl-6 pr-6 grow text-start"
+									className="mb-4 rounded-md p-4 bg-zinc-100 pl-6 pr-6 grow text-start border border-zinc-300 ml-2 mr-2"
 									key={`formula-${index}`}
 								>
 									<div className="mb-8">
@@ -83,7 +83,7 @@ function ChatPage() {
 						</CardHeader>
 						<CardContent className="flex-col items-start">
 							{showFinalAnswer ? (
-								<div className="w-full rounded-lg p-8 bg-amber-200">
+								<div className="w-full rounded-lg p-8 bg-amber-100 border border-zinc-300">
 									<LatexText content={finalAnswer} />
 								</div>
 							) : (

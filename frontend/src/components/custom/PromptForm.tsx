@@ -88,7 +88,7 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 		raw += chunk;
 		console.log("Raw chunk:", raw);
 		// Split the chunk by newlines to handle multiple JSON objects
-		const parts = raw.split("\n\n");
+		const parts = raw.split(/\r?\n\n(?=\{)/);
 		raw = parts.pop() || ""; // Keep the last part for next iteration
 
 		// Process each complete JSON object
