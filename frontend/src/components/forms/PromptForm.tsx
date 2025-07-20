@@ -69,6 +69,8 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 					prompt: values.prompt,
 					model: values.model,
 					action: values.action,
+					numMultipleChoice: values.action === "quiz" ? 5 : undefined,
+					numFreeResponse: values.action === "quiz" ? 2 : undefined,
 				}),
 			});
 

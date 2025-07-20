@@ -28,36 +28,25 @@ const ExplanationSchema = z.object({
   final_answer: z.string(),
 });
 
-export async function fetchOpenAIResponse(text: string, model: string) {
-  console.log(`Sending request to OpenAI: ${text}`)
-  const res = await openai.responses.parse({
-    model: model,
-    input: [
-    {
-      role: "system",
-      content:
-        `
-        You are a helpful math tutor. 
-        
-        1. Solve the problem by breaking it into simple, logical steps. Use more steps for more complex problems.
-        2. For each step, explain how to solve it without revealing the final answer.
-        3. After the explanation, present the full solution.
-        4. List any formulas used, and give them clear titles. Use correct LaTeX formatting:
-          - For inline math, wrap the expression with '\\(' and '\\)'. Do not use $...$.
-          - For display math, place '\\[' on a new line before the expression, and '\\]' on a new line after it. Do not use $$...$$.
-        5. Do not include LaTeX in formula titles—only in the formula expressions, step explanations, and solutions.
-        6. Do not repeat information between the explanation and the solution.
-
-        Always output valid LaTeX that renders properly in frontend environments that use MathJax or KaTeX.
-        `
-    },
-      { role: "user", content: text },
-    ],
-    response_format: zodResponseFormat(ExplanationSchema, "explanation"),
-  });
-
-  return res.output_parsed;
-}
+const QuizSchema = z.object({
+  multiple_choice_questions: z.array(
+    z.object({
+      question: z.string(),
+      choices: z.array(
+        z.object({
+          item: z.string(),
+          correct: z.boolean(),
+        })
+      ),
+      correct_answer_reason: z.string().nullable().optional(),
+    })
+  ).max(10).nullable().optional(),
+  free_response_questions: z.array(
+    z.object({
+      question: z.string(),
+    })
+  ).max(10).nullable().optional(),
+})
 
 export async function streamExplanationResponse(prompt: string, model: string, res: Response) {
 
@@ -67,7 +56,7 @@ export async function streamExplanationResponse(prompt: string, model: string, r
       {
         role: 'system',
         content: `
-        You are a helpful math tutor. 
+        You are a helpful tutor. 
         
         1. Solve the problem by breaking it into simple, logical steps. Use more steps for more complex problems.
         2. For each step, explain how to solve it without revealing the final answer.
@@ -79,6 +68,41 @@ export async function streamExplanationResponse(prompt: string, model: string, r
         6. Do not repeat information between the explanation and the solution.
 
         Always output valid LaTeX that renders properly in frontend environments that use MathJax or KaTeX.
+        `,
+      },
+      { role: 'user', content: prompt },
+    ],
+    response_format: zodResponseFormat(ExplanationSchema, "explanation"),
+  })
+  .on("refusal.done", () => console.log("request refused"))
+  .on("content.delta", ({ snapshot, parsed }) => {
+    //console.log("content:", snapshot);
+    //console.log("parsed:", parsed);
+    res.write(JSON.stringify(parsed) + "\n\n");
+  })
+  .on("content.done", (props) => {
+    //console.log(props);
+  });
+
+  await stream.done();
+}
+
+export async function streamQuizResponse(prompt: string, model: string, numMultipleChoice: number, numFreeResponse: number,res: Response) {
+
+  const stream = await openai.chat.completions.stream({
+    model,
+    messages: [
+      {
+        role: 'system',
+        content: `
+        You are a helpful tutor. 
+        
+        1. Generate a quiz based on the provided prompt.
+        2. Include ${numMultipleChoice} multiple choice questions and ${numFreeResponse} free response questions.
+        3. For multiple choice questions, provide 4 choices with one correct answer.
+        4. For free response questions, give a clear description of the question.
+        5. Provide explanations for the correct answers.
+        6. Use clear, concise language appropriate for the subject matter.
         `,
       },
       { role: 'user', content: prompt },
