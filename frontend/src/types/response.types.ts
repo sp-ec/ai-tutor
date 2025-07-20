@@ -1,3 +1,9 @@
+export interface PromptFormResponse {
+	error_message: string | null;
+	explanation: Explanation | null;
+	quiz: Quiz | null;
+}
+
 export interface ExplanationStep {
 	title: string;
 	explanation: string;
@@ -14,8 +20,21 @@ export interface Explanation {
 	formulas: Formula[];
 }
 
-export interface ExplanationResponse {
-	prompt: string;
-	response: Explanation;
-	success: boolean;
+export interface MultipleChoiceItem {
+	item: string;
+	correct: boolean;
+}
+export interface MultipleChoiceQuestion {
+	question: string;
+	choices: MultipleChoiceItem[];
+	correct_answer_reason: string;
+}
+
+export interface FreeResponseQuestion {
+	question: string;
+}
+
+export interface Quiz {
+	multiple_choice_questions: MultipleChoiceQuestion[];
+	free_response_questions: FreeResponseQuestion[];
 }

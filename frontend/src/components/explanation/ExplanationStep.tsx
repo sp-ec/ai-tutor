@@ -17,8 +17,10 @@ function ResponseStep({ data }: { data: ExplanationStep }) {
 	const [solution, setSolution] = useState("");
 
 	useEffect(() => {
-		setSolution(data.solution);
-	}, [showSolution]);
+		if (data.solution) {
+			setSolution(data.solution);
+		}
+	}, [data.solution]);
 
 	return (
 		<Card className="w-full mt-8">

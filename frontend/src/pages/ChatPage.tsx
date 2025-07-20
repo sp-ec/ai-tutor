@@ -1,29 +1,14 @@
-import React, { useEffect } from "react";
 import { useState } from "react";
-import ResponseStep from "@/components/explanation/ExplanationStep";
-import type {
-	Explanation,
-	ExplanationStep,
-	Formula,
-} from "@/types/response.types";
+import type { Explanation, PromptFormResponse } from "@/types/response.types";
 import { PromptForm } from "@/components/forms/PromptForm";
-import { Button } from "@/components/ui/button";
-import LatexText from "@/components/utils/LaTeXDisplay";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardContent,
-	CardFooter,
-} from "@/components/ui/card";
-import { set } from "zod";
 import ExplanationResponse from "@/components/explanation/ExplanationResponse";
 
 function ChatPage() {
-	const [explanation, setExplanation] = useState<Explanation | null>(null);
+	const [response, setResponse] = useState<PromptFormResponse | null>(null);
 
-	const handleDataFetched = (data: Explanation) => {
-		setExplanation(data);
+	const handleDataFetched = (data: PromptFormResponse) => {
+		setResponse({ ...data });
+		console.log("Data fetched:", JSON.stringify(data));
 	};
 
 	return (
@@ -33,7 +18,9 @@ function ChatPage() {
 
 				<PromptForm onDataFetched={handleDataFetched} />
 
-				{explanation && <ExplanationResponse data={explanation} />}
+				{response?.explanation && (
+					<ExplanationResponse data={response.explanation as Explanation} />
+				)}
 			</div>
 		</div>
 	);

@@ -6,29 +6,23 @@ import { Button } from "@/components/ui/button";
 import LatexText from "@/components/utils/LaTeXDisplay";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 function ExplanationResponse({ data }: { data: Explanation | null }) {
-	const [explanation, setExplanation] = useState<Explanation | null>(data);
 	const [showFinalAnswer, setShowFinalAnswer] = useState(false);
-	const [finalAnswer, setFinalAnswer] = useState("");
 
 	useEffect(() => {
-		setExplanation(data);
-		setFinalAnswer(data?.final_answer || "");
-	}, [data]);
+		setShowFinalAnswer(false); // reset answer reveal when data changes
+	}, [data?.final_answer]);
 
-	useEffect(() => {
-		if (!explanation) return;
-		setFinalAnswer(explanation.final_answer);
-	}, [showFinalAnswer]);
+	if (!data) return null;
 
 	return (
 		<>
-			{!explanation?.formulas || explanation?.formulas?.length == 0 ? null : (
+			{!data?.formulas || data?.formulas?.length == 0 ? null : (
 				<Card className="w-full">
 					<CardHeader>
 						<CardTitle>Formulas</CardTitle>
 					</CardHeader>
 					<CardContent className="w-full flex flex-wrap">
-						{explanation?.formulas?.map((formula, index) => (
+						{data?.formulas?.map((formula, index) => (
 							<div
 								className="mb-4 rounded-md p-4 bg-zinc-100 pl-6 pr-6 grow text-start border border-zinc-300 ml-2 mr-2"
 								key={`formula-${index}`}
@@ -51,11 +45,11 @@ function ExplanationResponse({ data }: { data: Explanation | null }) {
 				</Card>
 			)}
 
-			{explanation?.steps?.map((step: ExplanationStep, index: number) => (
+			{data?.steps?.map((step: ExplanationStep, index: number) => (
 				<ResponseStep data={step} key={`step-${index}`} />
 			))}
 
-			{!explanation?.final_answer ? null : (
+			{!data?.final_answer ? null : (
 				<Card className="w-full mt-8">
 					<CardHeader>
 						<CardTitle>
@@ -65,7 +59,7 @@ function ExplanationResponse({ data }: { data: Explanation | null }) {
 					<CardContent className="flex-col items-start">
 						{showFinalAnswer ? (
 							<div className="w-full rounded-lg p-8 bg-amber-100 border border-zinc-300">
-								<LatexText content={finalAnswer} />
+								<LatexText content={data.final_answer} />
 							</div>
 						) : (
 							<Button
