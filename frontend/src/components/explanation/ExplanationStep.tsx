@@ -10,7 +10,7 @@ import {
 	CardFooter,
 	CardAction,
 } from "../ui/card";
-import LatexText from "./LaTeXDisplay";
+import LatexText from "../utils/LaTeXDisplay";
 
 function ResponseStep({ data }: { data: ExplanationStep }) {
 	const [showSolution, setShowSolution] = useState(false);
