@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import type { ExplanationStep } from "@/types/response.types";
 import {
 	Card,
@@ -9,8 +9,8 @@ import {
 	CardContent,
 	CardFooter,
 	CardAction,
-} from "../ui/card";
-import LatexText from "../utils/LaTeXDisplay";
+} from "../../ui/card";
+import LatexText from "../../utils/LaTeXDisplay";
 
 function ResponseStep({ data }: { data: ExplanationStep }) {
 	const [showSolution, setShowSolution] = useState(false);

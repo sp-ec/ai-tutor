@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { Explanation, PromptFormResponse } from "@/types/response.types";
+import type { Explanation, PromptFormResponse, Quiz } from "@/types/response.types";
 import { PromptForm } from "@/components/forms/PromptForm";
-import ExplanationResponse from "@/components/explanation/ExplanationResponse";
+import ExplanationResponse from "@/components/response/explanation/ExplanationResponse";
+import QuizResponse from "@/components/response/quiz/QuizResponse";
 
 function ChatPage() {
 	const [response, setResponse] = useState<PromptFormResponse | null>(null);
@@ -20,6 +21,10 @@ function ChatPage() {
 
 				{response?.explanation && (
 					<ExplanationResponse data={response.explanation as Explanation} />
+				)}
+
+				{response?.quiz && (
+					<QuizResponse data={response.quiz as Quiz} />
 				)}
 			</div>
 		</div>

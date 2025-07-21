@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import ResponseStep from "@/components/explanation/ExplanationStep";
+import ResponseStep from "@/components/response/explanation/ExplanationStep";
 import type { Explanation, ExplanationStep } from "@/types/response.types";
 import { Button } from "@/components/ui/button";
 import LatexText from "@/components/utils/LaTeXDisplay";

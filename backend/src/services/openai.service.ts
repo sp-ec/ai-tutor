@@ -107,7 +107,7 @@ export async function streamQuizResponse(prompt: string, model: string, numMulti
       },
       { role: 'user', content: prompt },
     ],
-    response_format: zodResponseFormat(ExplanationSchema, "explanation"),
+    response_format: zodResponseFormat(QuizSchema, "quiz"),
   })
   .on("refusal.done", () => console.log("request refused"))
   .on("content.delta", ({ snapshot, parsed }) => {
