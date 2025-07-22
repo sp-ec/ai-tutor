@@ -10,10 +10,12 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { FormItem, FormLabel } from "@/components/ui/form";
+import type { OpenAIModel } from "@/types/openai.types";
+import { OpenAIModelValues } from "@/types/openai.types";
 
 interface ModelSelectorProps {
-	value: "gpt-4o" | "gpt-4" | "gpt-3.5-turbo";
-	onChange: (value: "gpt-4o" | "gpt-4" | "gpt-3.5-turbo") => void;
+	value: OpenAIModel;
+	onChange: (value: OpenAIModel) => void;
 	onBlur: () => void;
 	name: string;
 	ref: React.Ref<any>;
@@ -25,10 +27,8 @@ export function ModelSelector(props: ModelSelectorProps) {
 		<FormItem>
 			{/* <FormLabel>Model</FormLabel> */}
 			<Select
-				defaultValue="gpt-4o"
-				onValueChange={(e) =>
-					props.onChange(e as "gpt-4o" | "gpt-4" | "gpt-3.5-turbo")
-				}
+				defaultValue={OpenAIModelValues[0]}
+				onValueChange={(e) => props.onChange(e as OpenAIModel)}
 			>
 				<SelectTrigger className="w-[180px]">
 					<SelectValue />
@@ -36,9 +36,11 @@ export function ModelSelector(props: ModelSelectorProps) {
 				<SelectContent>
 					<SelectGroup>
 						<SelectLabel>Model</SelectLabel>
-						<SelectItem value={"gpt-4o"}>GPT-4o</SelectItem>
-						<SelectItem value={"gpt-4"}>GPT-4</SelectItem>
-						<SelectItem value={"gpt-3.5-turbo"}>GPT-3.5 Turbo</SelectItem>
+						{Object.entries(OpenAIModelValues).map(([key, label]) => (
+							<SelectItem key={key} value={label}>
+								{label}
+							</SelectItem>
+						))}
 					</SelectGroup>
 				</SelectContent>
 			</Select>

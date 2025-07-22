@@ -10,7 +10,7 @@ const openai = new OpenAI({
 const Step = z.object({
   title: z.string(),
   explanation: z.string(),
-  solution: z.string().nullable().optional(),
+  solution: z.string(),
 });
 
 const Formula = z.object({
@@ -49,6 +49,8 @@ const QuizSchema = z.object({
 })
 
 export async function streamExplanationResponse(prompt: string, model: string, res: Response) {
+
+  console.log(`Streaming explanation response for model: ${model}`);
 
   const stream = await openai.chat.completions.stream({
     model,

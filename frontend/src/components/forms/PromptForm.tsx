@@ -17,7 +17,9 @@ import type {
 	Quiz,
 } from "@/types/response.types";
 import { ActionSelector } from "@/components/forms/ActionSelector";
+import { ModelSelector } from "@/components/forms/ModelSelector";
 import { AutosizeTextarea } from "../ui/autosizetextarea";
+import { OpenAIModelValues } from "@/types/openai.types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -30,7 +32,7 @@ const FormSchema = z.object({
 		.max(10000, {
 			message: "Prompt must not be longer than 10,000 characters.",
 		}),
-	model: z.enum(["gpt-4o", "gpt-4", "gpt-3.5-turbo"]),
+	model: z.enum(OpenAIModelValues),
 	action: z.enum(["explain", "quiz", "tutor"]),
 });
 
@@ -42,7 +44,7 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			model: "gpt-4o",
+			model: "gpt-4.1-nano",
 			action: "explain",
 		},
 	});
@@ -139,6 +141,19 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 							<FormLabel>Action</FormLabel>
 							<FormControl>
 								<ActionSelector {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="model"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Model</FormLabel>
+							<FormControl>
+								<ModelSelector {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
