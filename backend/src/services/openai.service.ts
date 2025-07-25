@@ -15,11 +15,7 @@ const Step = z.object({
 
 const Formula = z.object({
   title: z.string(),
-  math: z.string().transform((val) => {
-    if (!val.startsWith('$$')) val = `$$${val}`;
-    if (!val.endsWith('$$')) val = `${val}$$`;
-    return val;
-  }),
+  math: z.string()
 });
 
 const ExplanationSchema = z.object({
@@ -63,13 +59,9 @@ export async function streamExplanationResponse(prompt: string, model: string, r
         1. Solve the problem by breaking it into simple, logical steps. Use more steps for more complex problems.
         2. For each step, explain how to solve it without revealing the final answer.
         3. After the explanation, present the full solution.
-        4. List any formulas used, and give them clear titles. Use correct LaTeX formatting:
-          - For inline math, wrap the expression with '\\(' and '\\)'. Do not use $...$.
-          - For display math, place '\\[' on a new line before the expression, and '\\]' on a new line after it. Do not use $$...$$.
-        5. Do not include LaTeX in formula titles—only in the formula expressions, step explanations, and solutions.
-        6. Do not repeat information between the explanation and the solution.
-
-        Always output valid LaTeX that renders properly in frontend environments that use MathJax or KaTeX.
+        4. List any formulas used, and give them clear titles.
+        5. All mathematical expressions should be in LaTeX format, wrapped in \`\\(\` and \`\\)\` for inline math, or \`\\[\` and \`\\]\` for display math.
+        6. This includes math in the explanations, titles, solutions, and final answer.
         `,
       },
       { role: 'user', content: prompt },
@@ -81,6 +73,7 @@ export async function streamExplanationResponse(prompt: string, model: string, r
     //console.log("content:", snapshot);
     //console.log("parsed:", parsed);
     res.write(JSON.stringify(parsed) + "\n\n");
+    console.log("Streaming explanation response:", parsed);
   })
   .on("content.done", (props) => {
     //console.log(props);

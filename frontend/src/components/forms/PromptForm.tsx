@@ -44,7 +44,7 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			model: "gpt-4.1-nano",
+			model: `${OpenAIModelValues[0]}`,
 			action: "explain",
 		},
 	});

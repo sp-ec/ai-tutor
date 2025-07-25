@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../../ui/button";
 import type { MultipleChoiceQuestion } from "@/types/response.types";
 import {
@@ -10,10 +10,19 @@ import {
 	CardFooter,
 	CardAction,
 } from "../../ui/card";
+import { FormItem, FormControl, FormLabel, FormField } from "../../ui/form";
+import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
 import LatexText from "../../utils/LaTeXDisplay";
 
-function MultipleChoice({ data }: { data: MultipleChoiceQuestion }) {
+function MultipleChoice({
+	data,
+	form,
+}: {
+	data: MultipleChoiceQuestion;
+	form: any;
+}) {
 	const [submitted, setSubmitted] = useState(false);
+	const [selected, setSelected] = useState<string>("");
 
 	return (
 		<Card className="w-full mt-8">
@@ -23,16 +32,39 @@ function MultipleChoice({ data }: { data: MultipleChoiceQuestion }) {
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
-				{data?.choices?.map((choice, index) => (
-					<div
-						key={`choice-${index}`}
-						className="mb-2 p-4 bg-zinc-100 rounded-md border border-zinc-300"
-					>
-						<LatexText content={choice.item} />
-					</div>
-				))}
+				<FormField
+					control={form.control}
+					name="type"
+					render={({ field }) => (
+						<FormItem className="space-y-3">
+							<FormControl>
+								<RadioGroup
+									onValueChange={field.onChange}
+									className="flex flex-col"
+								>
+									{data?.choices?.map((choice, index) => (
+										<FormItem key={index} className="flex items-center gap-3">
+											<FormControl>
+												<RadioGroupItem
+													value={choice.item}
+													onClick={() => {
+														setSelected(choice.item);
+														field.onChange(choice.item);
+													}}
+												/>
+											</FormControl>
+											<FormLabel className="font-normal">
+												<LatexText content={choice.item} />
+											</FormLabel>
+										</FormItem>
+									))}
+								</RadioGroup>
+							</FormControl>
+						</FormItem>
+					)}
+				/>
 			</CardContent>
-			{data.correct_answer_reason ? (
+			{/* {data.correct_answer_reason ? (
 				<CardFooter className="flex-col gap-2 items-start">
 					{submitted ? (
 						<div className="w-full bg-zinc-100 rounded-lg p-8 border border-zinc-300">
@@ -43,12 +75,13 @@ function MultipleChoice({ data }: { data: MultipleChoiceQuestion }) {
 							type="button"
 							className=""
 							onClick={() => setSubmitted(true)}
+							disabled={!selected}
 						>
 							Submit
 						</Button>
 					)}
 				</CardFooter>
-			) : null}
+			) : null} */}
 		</Card>
 	);
 }

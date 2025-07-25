@@ -59,7 +59,7 @@ function ExplanationResponse({ data }: { data: Explanation | null }) {
 					<CardContent className="flex-col items-start">
 						{showFinalAnswer ? (
 							<div className="w-full rounded-lg p-8 bg-amber-100 border border-zinc-300">
-								<LatexText content={data.final_answer} />
+								<LatexText content={`${data.final_answer}`} />
 							</div>
 						) : (
 							<Button
