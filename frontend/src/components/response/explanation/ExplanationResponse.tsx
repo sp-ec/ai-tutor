@@ -5,6 +5,14 @@ import type { Explanation, ExplanationStep } from "@/types/response.types";
 import { Button } from "@/components/ui/button";
 import LatexText from "@/components/utils/LaTeXDisplay";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+  } from "@/components/ui/tooltip"
+import { FaQuestionCircle } from "react-icons/fa";
+
+
 function ExplanationResponse({ data }: { data: Explanation | null }) {
 	const [showFinalAnswer, setShowFinalAnswer] = useState(false);
 
@@ -27,16 +35,26 @@ function ExplanationResponse({ data }: { data: Explanation | null }) {
 								className="mb-4 rounded-md p-4 bg-zinc-100 pl-6 pr-6 grow text-start border border-zinc-300 ml-2 mr-2"
 								key={`formula-${index}`}
 							>
-								<div className="mb-8">
+								<div className="mb-8 flex items-center gap-2 space-x-1">
 									<em>
 										<LatexText
 											content={formula.title}
 											key={`formula-title-${index}`}
 										/>
 									</em>
+									<Tooltip>
+										<TooltipTrigger><FaQuestionCircle /></TooltipTrigger>
+										<TooltipContent className="max-w-64">
+											<LatexText
+												content={formula.explanation}
+												key={`formula-explanation-${index}`}
+											/>
+										</TooltipContent>
+									</Tooltip>	
+									
 								</div>
 								<LatexText
-									content={`$$${formula.math}$$`}
+									content={`${formula.math}`}
 									key={`formula-math-${index}`}
 								/>
 							</div>

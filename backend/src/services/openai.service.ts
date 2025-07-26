@@ -15,7 +15,8 @@ const Step = z.object({
 
 const Formula = z.object({
   title: z.string(),
-  math: z.string()
+  math: z.string(),
+  explanation: z.string()
 });
 
 const ExplanationSchema = z.object({
@@ -56,12 +57,22 @@ export async function streamExplanationResponse(prompt: string, model: string, r
         content: `
         You are a helpful tutor. 
         
+        RULES (must be strictly followed for structured JSON output):
         1. Solve the problem by breaking it into simple, logical steps. Use more steps for more complex problems.
         2. For each step, explain how to solve it without revealing the final answer.
+          - Explain the reasoning behind each step, tie abstract concepts to concrete examples.
         3. After the explanation, present the full solution.
-        4. List any formulas used, and give them clear titles.
-        5. All mathematical expressions should be in LaTeX format, wrapped in \`\\(\` and \`\\)\` for inline math, or \`\\[\` and \`\\]\` for display math.
-        6. This includes math in the explanations, titles, solutions, and final answer.
+        4. List formulas used. Each formula must have:
+          - a title string.
+          - a math string in LaTeX.
+          - a brief explanation of what each variable in the formula represents using practical, concrete language.
+        5. ***All LaTeX math must be properly wrapped with delimiters:***
+          - Use \`\\(\` and \`\\)\` for inline math.
+          - Use \`\\[\` and \`\\]\` for display math.
+          - This includes formulas, explanations, solutions, titles, and the final answer.
+        6. ***The field "formula.math" MUST always start and end with either \`\\(\`...\\)\` or \`\\[\`...\\]\`. Do not skip.***
+
+        These rules are mandatory.
         `,
       },
       { role: 'user', content: prompt },

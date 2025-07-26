@@ -13,6 +13,7 @@ export interface ExplanationStep {
 export interface Formula {
 	math: string;
 	title: string;
+	explanation: string;
 }
 export interface Explanation {
     steps: ExplanationStep[];
