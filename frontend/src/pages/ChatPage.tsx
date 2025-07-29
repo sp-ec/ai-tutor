@@ -41,6 +41,10 @@ function ChatPage() {
 				)}
 
 				{response?.quiz && <QuizResponse data={response.quiz as Quiz} />}
+
+				{response?.error_message && (
+					<div className="text-red-500 mt-4">{response.error_message}</div>
+				)}
 			</div>
 		</div>
 	);

@@ -20,7 +20,8 @@ import { ActionSelector } from "@/components/forms/ActionSelector";
 import { ModelSelector } from "@/components/forms/ModelSelector";
 import { AutosizeTextarea } from "../ui/autosizetextarea";
 import { OpenAIModelValues } from "@/types/openai.types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import LoadingIcons from "react-loading-icons";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,10 +45,11 @@ interface PromptFormProps {
 
 export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 	const [loading, setLoading] = useState(false);
+	const [cancelled, setCancelled] = useState(false);
+	const cancelledRef = useRef(false);
 
 	useEffect(() => {
 		handleLoading(loading);
-		// Notify parent component about loading state change
 	}, [loading]);
 
 	const form = useForm<z.infer<typeof FormSchema>>({
@@ -97,6 +99,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 			};
 
 			setLoading(true);
+			cancelledRef.current = false;
 
 			const response = await fetch(`${API_URL}/openai/${values.action}`, {
 				method: "POST",
@@ -120,6 +123,15 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 
 			try {
 				while (true) {
+					if (cancelledRef.current) {
+						console.log("Stream cancelled by user");
+						onDataFetched({
+							explanation: currentData.explanation,
+							quiz: currentData.quiz,
+							error_message: "Stream cancelled by user.",
+						} as PromptFormResponse);
+						break;
+					}
 					const { done, value } = await reader.read();
 					if (done) {
 						break;
@@ -212,9 +224,17 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 					)}
 				/>
 				{loading ? (
-					<Button type="button" disabled>
-						Loading...
-					</Button>
+					<div>
+						<Button
+							type="button"
+							onClick={() => {
+								cancelledRef.current = true;
+							}}
+						>
+							<LoadingIcons.TailSpin />
+							Cancel
+						</Button>
+					</div>
 				) : (
 					<Button type="submit">Submit</Button>
 				)}
