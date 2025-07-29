@@ -20,6 +20,7 @@ import { ActionSelector } from "@/components/forms/ActionSelector";
 import { ModelSelector } from "@/components/forms/ModelSelector";
 import { AutosizeTextarea } from "../ui/autosizetextarea";
 import { OpenAIModelValues } from "@/types/openai.types";
+import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -38,9 +39,17 @@ const FormSchema = z.object({
 
 interface PromptFormProps {
 	onDataFetched: (data: PromptFormResponse) => void;
+	handleLoading: (isLoading: boolean) => void;
 }
 
-export function PromptForm({ onDataFetched }: PromptFormProps) {
+export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		handleLoading(loading);
+		// Notify parent component about loading state change
+	}, [loading]);
+
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
@@ -49,10 +58,37 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 		},
 	});
 
+	const processJsonPart = (
+		part: string,
+		action: string,
+		currentData: PromptFormResponse
+	) => {
+		if (part.trim() === "") return;
+
+		try {
+			const result = JSON.parse(part);
+			if (result !== undefined) {
+				if (action === "explain") {
+					// For explanation, we expect an Explanation object
+					const parsedSoFar = result as Explanation;
+					currentData.explanation = parsedSoFar;
+				} else if (action === "quiz") {
+					// For quiz, we expect a Quiz object
+					const parsedSoFar = result as Quiz;
+					currentData.quiz = parsedSoFar;
+				}
+				onDataFetched(currentData);
+			}
+		} catch (err) {
+			console.warn("Partial JSON parsing error:", err);
+		}
+	};
+
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
 		console.log(
 			`Submitting prompt: ${values.prompt} with action ${values.action}`
 		);
+
 		try {
 			let currentData: PromptFormResponse = {
 				error_message: null,
@@ -60,7 +96,7 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 				quiz: null,
 			};
 
-			onDataFetched(currentData); // reset state
+			setLoading(true);
 
 			const response = await fetch(`${API_URL}/openai/${values.action}`, {
 				method: "POST",
@@ -81,44 +117,30 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 			const reader = response.body.getReader();
 			const decoder = new TextDecoder("utf-8");
 			let raw = "";
-			let parsedSoFar: any = {};
 
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
+			try {
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) {
+						break;
+					}
 
-				let chunk = decoder.decode(value, { stream: true });
+					let chunk = decoder.decode(value, { stream: true });
+					raw += chunk;
 
-				raw += chunk;
-				//console.log("Raw chunk:", raw);
-				// Split the chunk by newlines to handle multiple JSON objects
-				const parts = raw.split(/\r?\n\n(?=\{)/);
-				raw = parts.pop() || ""; // Keep the last part for next iteration
+					// Split the chunk by newlines to handle multiple JSON objects
+					const parts = raw.split(/\r?\n\n(?=\{)/);
+					raw = parts.pop() || ""; // Keep the last part for next iteration
 
-				// Process each complete JSON object
-				for (const part of parts) {
-					if (part.trim() === "") continue; // Skip empty parts
-					try {
-						const result = JSON.parse(part);
-						if (result !== undefined) {
-							if (values.action === "explain") {
-								// For explanation, we expect an Explanation object
-								parsedSoFar = result as Explanation;
-								currentData.explanation = parsedSoFar;
-							} else if (values.action === "quiz") {
-								// For quiz, we expect a Quiz object
-								parsedSoFar = result as Quiz;
-								currentData.quiz = parsedSoFar;
-							}
-							onDataFetched(currentData);
-						}
-					} catch (err) {
-						console.warn("Partial JSON parsing error:", err);
+					// Process each complete JSON object
+					for (const part of parts) {
+						processJsonPart(part, values.action, currentData);
 					}
 				}
-
-				// Log the current chunk for debugging
-				// console.log("Received chunk:", chunk);
+			} finally {
+				// Always close the reader when done
+				reader.releaseLock();
+				console.log("Reader released");
 			}
 		} catch (error) {
 			console.error("Error fetching OpenAI response:", error);
@@ -127,6 +149,9 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 				quiz: null,
 				error_message: "Failed to fetch response from OpenAI.",
 			} as PromptFormResponse);
+		} finally {
+			console.log("Stream finished");
+			setLoading(false);
 		}
 	};
 
@@ -186,7 +211,13 @@ export function PromptForm({ onDataFetched }: PromptFormProps) {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Submit</Button>
+				{loading ? (
+					<Button type="button" disabled>
+						Loading...
+					</Button>
+				) : (
+					<Button type="submit">Submit</Button>
+				)}
 			</form>
 		</Form>
 	);

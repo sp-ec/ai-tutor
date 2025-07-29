@@ -84,10 +84,12 @@ export async function streamExplanationResponse(prompt: string, model: string, r
     //console.log("content:", snapshot);
     //console.log("parsed:", parsed);
     res.write(JSON.stringify(parsed) + "\n\n");
-    console.log("Streaming explanation response:", parsed);
+    //console.log("Streaming explanation response:", parsed);
   })
   .on("content.done", (props) => {
-    //console.log(props);
+    //console.log("Streaming done:", props);
+    res.write(JSON.stringify({ done: true }) + "\n\n");
+    res.end();
   });
 
   await stream.done();
