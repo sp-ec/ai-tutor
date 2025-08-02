@@ -9,9 +9,8 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-  } from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import { FaQuestionCircle } from "react-icons/fa";
-
 
 function ExplanationResponse({ data }: { data: Explanation | null }) {
 	const [showFinalAnswer, setShowFinalAnswer] = useState(false);
@@ -43,15 +42,16 @@ function ExplanationResponse({ data }: { data: Explanation | null }) {
 										/>
 									</em>
 									<Tooltip>
-										<TooltipTrigger><FaQuestionCircle /></TooltipTrigger>
+										<TooltipTrigger>
+											<FaQuestionCircle />
+										</TooltipTrigger>
 										<TooltipContent className="max-w-64">
 											<LatexText
 												content={formula.explanation}
 												key={`formula-explanation-${index}`}
 											/>
 										</TooltipContent>
-									</Tooltip>	
-									
+									</Tooltip>
 								</div>
 								<LatexText
 									content={`${formula.math}`}

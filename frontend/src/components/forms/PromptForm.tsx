@@ -45,12 +45,18 @@ interface PromptFormProps {
 
 export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 	const [loading, setLoading] = useState(false);
-	const [cancelled, setCancelled] = useState(false);
+	const [actionType, setActionType] = useState<"explain" | "quiz" | "tutor">(
+		"explain"
+	);
 	const cancelledRef = useRef(false);
 
 	useEffect(() => {
 		handleLoading(loading);
 	}, [loading]);
+
+	const handleActionChange = (value: "explain" | "quiz" | "tutor") => {
+		setActionType(value);
+	};
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
@@ -88,7 +94,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 
 	const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
 		console.log(
-			`Submitting prompt: ${values.prompt} with action ${values.action}`
+			`Submitting prompt: ${values.prompt} with action ${actionType}`
 		);
 
 		try {
@@ -101,7 +107,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 			setLoading(true);
 			cancelledRef.current = false;
 
-			const response = await fetch(`${API_URL}/openai/${values.action}`, {
+			const response = await fetch(`${API_URL}/openai/${actionType}`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -109,9 +115,9 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 				body: JSON.stringify({
 					prompt: values.prompt,
 					model: values.model,
-					action: values.action,
-					numMultipleChoice: values.action === "quiz" ? 5 : undefined,
-					numFreeResponse: values.action === "quiz" ? 2 : undefined,
+					action: actionType,
+					numMultipleChoice: actionType === "quiz" ? 5 : undefined,
+					numFreeResponse: actionType === "quiz" ? 2 : undefined,
 				}),
 			});
 
@@ -146,7 +152,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 
 					// Process each complete JSON object
 					for (const part of parts) {
-						processJsonPart(part, values.action, currentData);
+						processJsonPart(part, actionType, currentData);
 					}
 				}
 			} finally {
@@ -177,7 +183,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 						<FormItem>
 							<FormLabel>Action</FormLabel>
 							<FormControl>
-								<ActionSelector {...field} />
+								<ActionSelector {...field} onChange={handleActionChange} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -209,7 +215,13 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 							<FormLabel>Prompt</FormLabel>
 							<FormControl>
 								<AutosizeTextarea
-									placeholder="Explain your question in clear terms."
+									placeholder={
+										actionType == "explain"
+											? "Describe the problem you want to have explained."
+											: actionType == "quiz"
+											? "Describe the topic you want to be quizzed on."
+											: "Describe what you would like to be tutored on."
+									}
 									className="resize-none h-36"
 									maxHeight={600}
 									{...field}
