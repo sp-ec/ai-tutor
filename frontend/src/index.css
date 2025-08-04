@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Mozilla+Headline:wdth,wght@112.5,500&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -119,4 +120,12 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.mozilla-headline {
+  font-family: "Mozilla Headline", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings: "wdth" 112.5;
 }

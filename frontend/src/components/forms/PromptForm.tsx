@@ -177,7 +177,7 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 
   return (
     <Form {...form}>
-      <div className="flex space-x-8 mb-8">
+      <div className="flex space-x-8 mb-2">
         <FormField
           control={form.control}
           name="action"
@@ -204,6 +204,15 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
             </FormItem>
           )}
         />
+      </div>
+      <div className="mb-8">
+        <FormDescription>
+          {actionType == "explain"
+            ? "Breaks down the problem into simple steps and describes any necessary formulas."
+            : actionType == "quiz"
+            ? "Generates a quiz consisting of multiple choice and free response questions."
+            : "Continually tutors you on the topic, answering questions and providing explanations."}
+        </FormDescription>
       </div>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
