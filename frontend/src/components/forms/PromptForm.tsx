@@ -277,7 +277,10 @@ export function PromptForm({ onDataFetched, handleLoading }: PromptFormProps) {
 						</Button>
 						<div className="inline-flex items-center">
 							Generating response
-							<LoadingIcons.ThreeDots className="max-w-6 max-h-6 mr-4 ml-4" />
+							<LoadingIcons.ThreeDots
+								className="max-w-6 max-h-6 mr-4 ml-4"
+								fill="currentColor"
+							/>
 						</div>
 					</div>
 				) : (
