@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { RiQuillPenAiFill } from "react-icons/ri";
 
 function SettingsPage() {
 	const FormSchema = z.object({
@@ -30,10 +32,13 @@ function SettingsPage() {
 	return (
 		<div className="flex flex-col items-center justify-center w-full mb-64">
 			<div className="w-full max-w-4xl px-4">
-				<h1 className="text-3xl mt-8 mb-8 mozilla-headline flex items-center gap-2">
-					<FaGear />
-					Settings
+				<h1 className="text-3xl mt-8  mozilla-headline flex items-center gap-2">
+					<RiQuillPenAiFill />
+					AI Tutor
 				</h1>
+				<h2 className="mb-8 text-xl text-zinc-500 mozilla-headline">
+					Settings
+				</h2>
 
 				<Form {...form}>
 					<FormField
@@ -45,14 +50,21 @@ function SettingsPage() {
 								<FormControl>
 									<Input placeholder="Enter your API key" {...field} />
 								</FormControl>
-								<FormDescription>How do I get this?</FormDescription>
+								{/* <FormDescription>How do I get this?</FormDescription> */}
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
-					<Button type="submit" className="mt-8">
-						<div className="flex items-center gap-2">Save</div>
-					</Button>
+					<div className="mt-8 flex items-center gap-4">
+						<Link to="/chat">
+							<Button variant="outline">
+								<div className="flex items-center gap-2">Back</div>
+							</Button>
+						</Link>
+						<Button type="submit">
+							<div className="flex items-center gap-2">Save</div>
+						</Button>
+					</div>
 				</Form>
 			</div>
 		</div>

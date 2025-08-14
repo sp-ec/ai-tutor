@@ -22,7 +22,7 @@ app.options("/{*any}", cors());
 app.use('/api', openaiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.send('Welcome to the AI Tutor API.');
 });
 
 app.listen(port, () => {

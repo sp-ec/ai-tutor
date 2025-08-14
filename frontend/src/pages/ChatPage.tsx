@@ -31,10 +31,11 @@ function ChatPage() {
 		<>
 			<div className="flex flex-col items-center justify-center w-full mb-64">
 				<div className="w-full max-w-4xl px-4">
-					<h1 className="text-3xl mt-8 mb-8 mozilla-headline flex items-center gap-2">
+					<h1 className="text-3xl mt-8  mozilla-headline flex items-center gap-2">
 						<RiQuillPenAiFill />
 						AI Tutor
 					</h1>
+					<h2 className="mb-8 text-xl text-zinc-500 mozilla-headline">Chat</h2>
 
 					<PromptForm
 						onDataFetched={handleDataFetched}
