@@ -1,17 +1,17 @@
-import { PiGearBold } from "react-icons/pi";
+import { PiChatDotsBold } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-function SettingsButton() {
+function ChatButton() {
 	return (
 		<div>
-			<Link to="/settings">
+			<Link to="/chat">
 				<Button variant="outline" className="min-w-16">
-					<PiGearBold />
+					<PiChatDotsBold />
 				</Button>
 			</Link>
 		</div>
 	);
 }
 
-export default SettingsButton;
+export default ChatButton;
